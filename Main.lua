@@ -59,7 +59,10 @@ local ActiveTracers = {}
 
 local function CleanupTracers()
     for player, tracer in pairs(ActiveTracers) do
-        if not game:GetService("Players"):FindFirstChild(player.Name) or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") or not EspTracers or not EspEnabled then
+        local character = player.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+        
+        if not game:GetService("Players"):FindFirstChild(player.Name) or not character or not character:FindFirstChild("HumanoidRootPart") or not humanoid or humanoid.Health <= 0 or not EspTracers or not EspEnabled then
             if tracer then
                 tracer.Visible = false
                 tracer:Remove()
