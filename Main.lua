@@ -1,3 +1,4 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 if game:GetService("CoreGui"):FindFirstChild("Rayfield") then
     game:GetService("CoreGui"):FindFirstChild("Rayfield"):Destroy()
 end
