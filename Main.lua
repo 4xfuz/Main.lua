@@ -1,5 +1,4 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
 getgenv().SecureMode = true
 
 local HitboxEnabled = false
