@@ -1,10 +1,4 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-if game:GetService("CoreGui"):FindFirstChild("Rayfield") then
-    game:GetService("CoreGui"):FindFirstChild("Rayfield"):Destroy()
-end
-
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
 getgenv().SecureMode = true
 
 local HitboxEnabled = false
@@ -63,29 +57,43 @@ end
 
 local ActiveTracers = {}
 
+local function CleanupTracers()
+    for player, tracer in pairs(ActiveTracers) do
+        if not game:GetService("Players"):FindFirstChild(player.Name) or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") or not EspTracers or not EspEnabled then
+            if tracer then
+                tracer.Visible = false
+                tracer:Remove()
+            end
+            ActiveTracers[player] = nil
+        end
+    end
+end
+
 game:GetService("RunService").RenderStepped:Connect(function()
     local localPlayer = game:GetService("Players").LocalPlayer
     local camera = workspace.CurrentCamera
 
-    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-        if player ~= localPlayer and player.Character then
-            local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
-            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-            
-            if rootPart and humanoid and humanoid.Health > 0 then
-                if HitboxEnabled then
-                    rootPart.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
-                    rootPart.Color = Color3.fromRGB(101, 67, 33)
-                    rootPart.Transparency = HitboxTransparency
-                    rootPart.Material = Enum.Material.SmoothPlastic
-                    rootPart.CanCollide = false
-                end
+    CleanupTracers()
 
-                if EspEnabled and EspHighlights then
-                    CreateHighlight(player)
-                end
+    if EspEnabled and EspTracers then
+        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+            if player ~= localPlayer and player.Character then
+                local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
+                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                
+                if rootPart and humanoid and humanoid.Health > 0 then
+                    if HitboxEnabled then
+                        rootPart.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+                        rootPart.Color = Color3.fromRGB(101, 67, 33)
+                        rootPart.Transparency = HitboxTransparency
+                        rootPart.Material = Enum.Material.SmoothPlastic
+                        rootPart.CanCollide = false
+                    end
 
-                if EspEnabled and EspTracers then
+                    if EspHighlights then
+                        CreateHighlight(player)
+                    end
+
                     if not ActiveTracers[player] then
                         ActiveTracers[player] = CreateTracer(player)
                     end
@@ -102,24 +110,17 @@ game:GetService("RunService").RenderStepped:Connect(function()
                             tracer.Visible = false
                         end
                     end
-                else
-                    if ActiveTracers[player] then
-                        ActiveTracers[player]:Remove()
-                        ActiveTracers[player] = nil
-                    end
                 end
-            else
-                if ActiveTracers[player] then
-                    ActiveTracers[player]:Remove()
-                    ActiveTracers[player] = nil
-                end
-            end
-        else
-            if ActiveTracers[player] then
-                ActiveTracers[player]:Remove()
-                ActiveTracers[player] = nil
             end
         end
+    else
+        for player, tracer in pairs(ActiveTracers) do
+            if tracer then
+                tracer.Visible = false
+                tracer:Remove()
+            end
+        end
+        ActiveTracers = {}
     end
 end)
 
