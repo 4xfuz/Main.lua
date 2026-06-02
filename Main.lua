@@ -1,6 +1,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 getgenv().SecureMode = true
 
+-- Variables
 local HitboxEnabled = false
 local HitboxSize = 20
 local HitboxTransparency = 0.7
@@ -9,6 +10,9 @@ local EspEnabled = false
 local EspHighlights = false
 local EspTracers = false
 
+local NoclipEnabled = false
+local InfJumpEnabled = false
+
 local function GetPlayerColor(player)
     if player.Team then
         return player.TeamColor.Color
@@ -16,7 +20,7 @@ local function GetPlayerColor(player)
     return Color3.fromRGB(255, 255, 255)
 end
 
--- وظيفة إعادة الحجم الطبيعي للجزء فور إغلاق الهيت بوكس
+-- Microscopic Fix: Enhanced Reset to ensure complete restoration
 local function ResetPartSize(player)
     local character = player.Character
     if character then
@@ -24,6 +28,9 @@ local function ResetPartSize(player)
         if rootPart then
             rootPart.Size = Vector3.new(2, 2, 1)
             rootPart.Transparency = 0
+            rootPart.Color = Color3.fromRGB(163, 162, 165) -- Default Roblox Gray
+            rootPart.Material = Enum.Material.Plastic
+            rootPart.CanCollide = true
         end
     end
 end
@@ -84,6 +91,33 @@ local function CleanupTracers()
     end
 end
 
+-- Microscopic Fix: Bypass-safe Noclip method for strict Anti-Cheats
+game:GetService("RunService").Stepped:Connect(function()
+    if NoclipEnabled then
+        local character = game:GetService("Players").LocalPlayer.Character
+        if character then
+            -- Disabling collision only for upper/lower torso and limbs to prevent getting flung/banned
+            for _, part in ipairs(character:GetChildren()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end
+end)
+
+-- Safe Infinity Jump Connection
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if InfJumpEnabled then
+        local character = game:GetService("Players").LocalPlayer.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:ChangeState("Jumping")
+        end
+    end
+end)
+
+-- Main Loop (RenderStepped)
 game:GetService("RunService").RenderStepped:Connect(function()
     local localPlayer = game:GetService("Players").LocalPlayer
     local camera = workspace.CurrentCamera
@@ -98,13 +132,17 @@ game:GetService("RunService").RenderStepped:Connect(function()
                 
                 if rootPart and humanoid and humanoid.Health > 0 then
                     if HitboxEnabled then
-                        rootPart.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
-                        rootPart.Color = Color3.fromRGB(101, 67, 33)
-                        rootPart.Transparency = HitboxTransparency
-                        rootPart.Material = Enum.Material.SmoothPlastic
-                        rootPart.CanCollide = false
+                        -- Microscopic Fix: Only update properties if they changed to save CPU performance
+                        local targetSize = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+                        if rootPart.Size ~= targetSize then
+                            rootPart.Size = targetSize
+                            rootPart.Color = Color3.fromRGB(101, 67, 33)
+                            rootPart.Transparency = HitboxTransparency
+                            rootPart.Material = Enum.Material.SmoothPlastic
+                            rootPart.CanCollide = false
+                        end
                     else
-                        ResetPartSize(player) -- يعيد الحجم لوضع الطبيعي للاعبين إذا تم إلغاء تفعيل الهيت بوكس والـ ESP يعمل
+                        ResetPartSize(player)
                     end
 
                     if EspEnabled and EspHighlights then
@@ -144,7 +182,6 @@ game:GetService("RunService").RenderStepped:Connect(function()
         end
     else
         ClearHighlights()
-        -- يعيد الحجم لوضع الطبيعي لجميع اللاعبين فوراً عند إغلاق الهيت بوكس والـ ESP معاً
         for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
             ResetPartSize(player)
         end
@@ -158,6 +195,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
+-- UI Setup
 local Window = Rayfield:CreateWindow({
     Name = "Universal Hub | Developer: 4xfuz",
     LoadingTitle = "Universal Hub",
@@ -169,6 +207,7 @@ local Window = Rayfield:CreateWindow({
 
 local Tab1 = Window:CreateTab("Hitbox Engine")
 local Tab2 = Window:CreateTab("ESP Settings")
+local Tab4 = Window:CreateTab("Ro-Streets Exploits")
 local Tab3 = Window:CreateTab("Settings")
 
 Tab1:CreateToggle({
@@ -212,6 +251,26 @@ Tab2:CreateToggle({
     Name = "Team Colored Tracers",
     CurrentValue = false,
     Callback = function(Value) EspTracers = Value end,
+})
+
+-- Ro-Streets Tab
+Tab4:CreateToggle({
+    Name = "Safe Noclip",
+    CurrentValue = false,
+    Callback = function(Value) NoclipEnabled = Value end,
+})
+
+Tab4:CreateToggle({
+    Name = "Safe Infinite Jump",
+    CurrentValue = false,
+    Callback = function(Value) InfJumpEnabled = Value end,
+})
+
+Tab4:CreateButton({
+    Name = "Load Custom Animations",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/HHLKDEVHACKER/Scripts/main/Animations.lua"))()
+    end,
 })
 
 Tab3:CreateParagraph({Title = "Developer", Content = "4xfuz"})
