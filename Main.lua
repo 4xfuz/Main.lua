@@ -16,7 +16,7 @@ local function GetPlayerColor(player)
     return Color3.fromRGB(255, 255, 255)
 end
 
--- Resets the player's HumanoidRootPart to its default size and transparency when hitbox is disabled
+-- وظيفة إعادة الحجم الطبيعي للجزء فور إغلاق الهيت بوكس
 local function ResetPartSize(player)
     local character = player.Character
     if character then
@@ -104,7 +104,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
                         rootPart.Material = Enum.Material.SmoothPlastic
                         rootPart.CanCollide = false
                     else
-                        ResetPartSize(player) -- Resets the size if Hitbox is disabled while ESP is active
+                        ResetPartSize(player) -- يعيد الحجم لوضع الطبيعي للاعبين إذا تم إلغاء تفعيل الهيت بوكس والـ ESP يعمل
                     end
 
                     if EspEnabled and EspHighlights then
@@ -144,7 +144,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
         end
     else
         ClearHighlights()
-        -- Resets size for all players instantly when both Hitbox and ESP are disabled
+        -- يعيد الحجم لوضع الطبيعي لجميع اللاعبين فوراً عند إغلاق الهيت بوكس والـ ESP معاً
         for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
             ResetPartSize(player)
         end
