@@ -16,12 +16,12 @@ local function GetPlayerColor(player)
     return Color3.fromRGB(255, 255, 255)
 end
 
--- وظيفة إعادة الحجم الطبيعي للجزء فور إغلاق الهيت بوكس
+-- Resets part size only if it was previously modified
 local function ResetPartSize(player)
     local character = player.Character
     if character then
         local rootPart = character:FindFirstChild("HumanoidRootPart")
-        if rootPart then
+        if rootPart and rootPart.Size ~= Vector3.new(2, 2, 1) then
             rootPart.Size = Vector3.new(2, 2, 1)
             rootPart.Transparency = 0
         end
@@ -104,7 +104,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
                         rootPart.Material = Enum.Material.SmoothPlastic
                         rootPart.CanCollide = false
                     else
-                        ResetPartSize(player) -- يعيد الحجم لوضع الطبيعي للاعبين إذا تم إلغاء تفعيل الهيت بوكس والـ ESP يعمل
+                        ResetPartSize(player)
                     end
 
                     if EspEnabled and EspHighlights then
@@ -144,7 +144,6 @@ game:GetService("RunService").RenderStepped:Connect(function()
         end
     else
         ClearHighlights()
-        -- يعيد الحجم لوضع الطبيعي لجميع اللاعبين فوراً عند إغلاق الهيت بوكس والـ ESP معاً
         for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
             ResetPartSize(player)
         end
