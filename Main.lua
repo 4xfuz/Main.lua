@@ -16,14 +16,13 @@ local function GetPlayerColor(player)
     return Color3.fromRGB(255, 255, 255)
 end
 
--- Resets part size only if it was previously modified
 local function ResetPartSize(player)
     local character = player.Character
     if character then
         local rootPart = character:FindFirstChild("HumanoidRootPart")
         if rootPart and rootPart.Size ~= Vector3.new(2, 2, 1) then
             rootPart.Size = Vector3.new(2, 2, 1)
-            rootPart.Transparency = 0
+            rootPart.Transparency = 1
         end
     end
 end
@@ -197,21 +196,3 @@ Tab2:CreateToggle({
     CurrentValue = false,
     Callback = function(Value)
         EspEnabled = Value
-        if not Value then ClearHighlights() end
-    end,
-})
-
-Tab2:CreateToggle({
-    Name = "Team Colored Highlights",
-    CurrentValue = false,
-    Callback = function(Value) EspHighlights = Value end,
-})
-
-Tab2:CreateToggle({
-    Name = "Team Colored Tracers",
-    CurrentValue = false,
-    Callback = function(Value) EspTracers = Value end,
-})
-
-Tab3:CreateParagraph({Title = "Developer", Content = "4xfuz"})
-Tab3:CreateParagraph({Title = "Discord Username", Content = "wxcr15"})
